@@ -1,72 +1,46 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f4f4f4;
-    margin: 0;
+const display = document.getElementById("display");
+const equalsBtn = document.getElementById("equals");
+
+function appendNumber(char) {
+  display.value += char;
 }
 
-.calculator {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
+function clearDisplay() {
+  display.value = '';
 }
 
-#display {
-    width: 200px;
-    height: 50px;
-    font-size: 2rem;
-    text-align: right;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+function backspace() {
+  display.value = display.value.slice(0, -1);
 }
 
-.buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+function calculateResult() {
+  equalsBtn.classList.add("equals-animate");
+
+  try {
+    // Convert × and ÷ to * and / before evaluation
+    const expression = display.value.replace(/×/g, '*').replace(/÷/g, '/');
+    display.value = eval(expression);
+  } catch (e) {
+    display.value = "Error";
+  }
+
+  setTimeout(() => {
+    equalsBtn.classList.remove("equals-animate");
+  }, 400);
 }
 
-button {
-    font-size: 1.5rem;
-    padding: 20px;
-    background-color: #f0f0f0;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+// ✅ Keyboard support
+document.addEventListener("keydown", function (event) {
+  const key = event.key;
 
-button:hover {
-    background-color: #dcdcdc;
-}
-/* Press animation */
-button:active {
-    transform: scale(0.95);
-    background-color: #2e2e44;
-}
-
-button.equals-animate {
-    animation: pulse 0.4s ease-out;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        background-color: #00ffc3;
-    }
-    50% {
-        transform: scale(1.15);
-        background-color: #00cc99;
-    }
-    100% {
-        transform: scale(1);
-        background-color: #00ffc3;
-    }
-}
+  if (!isNaN(key) || ['+', '-', '*', '/', '.'].includes(key)) {
+    appendNumber(key);
+  } else if (key === 'Enter' || key === '=') {
+    event.preventDefault(); // prevent form submission
+    calculateResult();
+  } else if (key === 'Backspace') {
+    backspace();
+  } else if (key.toLowerCase() === 'c') {
+    clearDisplay();
+  }
+});
